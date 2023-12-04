@@ -36,7 +36,7 @@ function extractNumber(grid, x, y, withId = false) {
 
   const number = parseInt(row.substring(start + 1, end), 10);
 
-  return withId ? [number, `${y}${start + 1}${end}`] : number;
+  return withId ? [number, `${y}-${start + 1}-${end}`] : number;
 }
 
 function computeGearRatio(grid, x, y) {
