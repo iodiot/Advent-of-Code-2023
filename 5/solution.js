@@ -4,9 +4,7 @@ import fs from 'fs';
 
 console.time();
 
-function toArray(line) {
-  return line.match(new RegExp(/\d+/, 'g')).map(n => parseInt(n, 10));
-}
+const toArray = line => line.match(/\d+/g).map(Number);
 
 function findLocation(almanac, start, end, row = 0) {
   const moves = almanac[row];
@@ -53,10 +51,9 @@ const almanac = [];
 
 for (const line of lines) {
   const tokens = line.split('|');
+  const moves = [];
 
   tokens.shift();
-
-  const moves = [];
 
   tokens.forEach(move => {
     moves.push(toArray(move));
