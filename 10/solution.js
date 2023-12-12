@@ -5,7 +5,7 @@ import fs from 'fs';
 console.time();
 
 function traverse(grid, x, y) {
-  const pipes = {
+  const chToDirs = {
     '.': [],
     '|': ['n', 's'],
     '-': ['e', 'w'],
@@ -16,25 +16,49 @@ function traverse(grid, x, y) {
     'S': ['n', 's', 'e', 'w'],
   };
 
-  const dirs = {
+  const dirToCoords = {
     'n': [0, -1],
     'e': [+1, 0],
     'w': [-1, 0],
     's': [0, +1],
   };
 
-  const queue = [[x, y]];
+  const dirToBackDir = {
+    'n': 's',
+    'e': 'w',
+    'w': 'e',
+    's': 'n',
+  };
+
+  const size = grid.length;
+  const queue = [[x, y, 0]];
+  const points = {};
 
   while (queue.length > 0) {
-    const [x, y] = queue.shift();
+    const [x, y, steps] = queue.shift();
     const ch = grid[y][x];
 
-    for (const [dx, dy] of dirs[pipes[ch]]) {
-      const xx = xx + dx, yy = y + dy;
-
-
+    if (!([x, y] in points)) {
+      points[[x, y]] = steps;
     }
+
+    if (points[[x, y]] < steps) continue;
+
+    for (const dir of chToDirs[ch]) {
+      const [dx, dy] = dirToCoords[dir];
+      const xx = x + dx, yy = y + dy;
+
+      if (xx < 0 || xx >= size || yy < 0 || yy >= size) continue;
+
+      const nextCh = grid[yy][xx];
+      const backDir = dirToBackDir[dir];
+
+      if (chToDirs[nextCh].includes(backDir))
+        queue.push([xx, yy, steps + 1]);
+      }
   }
+
+  return Math.max(...Object.values(points));
 }
 
 const grid = fs.readFileSync('./input.txt', 'utf8').trim().split('\n');
@@ -42,9 +66,7 @@ const grid = fs.readFileSync('./input.txt', 'utf8').trim().split('\n');
 const y = Math.max(...grid.map((row, index) => row.indexOf('S') > -1 ? index : 0));
 const x = grid[y].indexOf('S');
 
-console.log(x);
-
-console.log(`part 1: ${ 0 }`);
+console.log(`part 1: ${ traverse(grid, x, y) }`);
 console.log(`part 2: ${ 0 }`);
 
 console.timeEnd();
