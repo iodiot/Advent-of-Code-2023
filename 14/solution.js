@@ -56,22 +56,36 @@ function countLoad(platform) {
   return load;
 }
 
-function cycleTilt(platform) {
+function cycleTiltAndCountLoad(platform, cycles) {
   const dirs = [[0, -1], [-1, 0], [0, +1], [+1, 0]];
 
-  // Why 97? Rotate long enough to get a stable cycle of loads
-  // TODO Detect cycles in code
-  for (let i = 0; i < 97; ++i) {
+  let history = [];
+  let startCycle = -1;
+
+  while (true) {
     dirs.forEach(([dx, dy]) => tilt(platform, dx, dy));
+
+    const load = countLoad(platform);
+
+    if (history.includes(load)) {
+      if (startCycle === -1) {
+        startCycle = history.length;
+        history = [load];
+      } else {
+        break;
+      }
+    }
+
+    history.push(load);
   }
 
-  return platform;
+  return history[(cycles - startCycle) % history.length];
 }
 
 const platform = fs.readFileSync('./input.txt', 'utf8').trim().split('\r\n')
   .map(row => row.split(''));
 
 console.log(`part 1: ${ countLoad(tilt(Array.from(platform))) }`);
-console.log(`part 2: ${ countLoad(cycleTilt(Array.from(platform))) }`);
+console.log(`part 2: ${ cycleTiltAndCountLoad(Array.from(platform), 1000000000) }`);
 
 console.timeEnd();
